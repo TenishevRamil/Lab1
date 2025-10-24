@@ -2,10 +2,11 @@
 #include <locale>
 #include <codecvt>
 #include "modAlphaCipher.h"
-// Функция проверки валидности текста (только русские буквы)
+
+// Функция проверки валидности текста (русские буквы и пробелы)
 bool isValid(const std::wstring& s) {
     for(auto c : s) {
-        if (!iswalpha(c))  // если не буква
+        if (!iswalpha(c) && c != L' ')  // если не буква и не пробел
             return false;
     }
     return true;
@@ -17,12 +18,15 @@ int main() {
     std::wstring key;
     std::wstring text;
     int operation;
+    
     std::wcout << L"=== ШИФРАТОР ГРОНСФЕЛЬДА ===" << std::endl;
+    std::wcout << L"Теперь поддерживаются пробелы между словами!" << std::endl;
+    
     // Запрос ключа
     std::wcout << L"Введите ключ (только русские буквы): ";
     std::wcin >> key;
-    if (!isValid(key)) {
-        std::wcout << L"Ошибка: ключ должен содержать только буквы!" << std::endl;
+    if (!isValid(key) || key.find(L' ') != std::wstring::npos) {
+        std::wcout << L"Ошибка: ключ должен содержать только буквы без пробелов!" << std::endl;
         return 1;
     }
 
@@ -38,16 +42,20 @@ int main() {
         std::wcout << L"2 - Расшифровать" << std::endl;
         std::wcout << L"Ваш выбор: ";
         std::wcin >> operation;
+        
+        // Очищаем буфер после чтения числа
+        std::wcin.ignore();
+        
         if (operation == 0) {
             std::wcout << L"Выход из программы..." << std::endl;
             break;
         }
         else if (operation == 1 || operation == 2) {
             std::wcout << L"Введите текст: ";
-            std::wcin >> text;
+            std::getline(std::wcin, text); // Читаем всю строку с пробелами
             
             if (!isValid(text)) {
-                std::wcout << L"Ошибка: текст должен содержать только буквы!" << std::endl;
+                std::wcout << L"Ошибка: текст должен содержать только русские буквы и пробелы!" << std::endl;
                 continue;
             }
             
