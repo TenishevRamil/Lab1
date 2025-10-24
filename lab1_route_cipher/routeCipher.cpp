@@ -27,11 +27,14 @@ string RouteCipher::encrypt(const string& text) {
         table[row][col] = text[i];
     }
 
-    // Читаем сверху вниз, справа налево
+    // Читаем сверху вниз, справа налево (ТОЛЬКО ЗАНЯТЫЕ ЯЧЕЙКИ)
     string result;
     for (int col = key - 1; col >= 0; col--) {
         for (int row = 0; row < rows; row++) {
-            result += table[row][col];
+            // Добавляем только если ячейка не пустая (не пробел)
+            if (table[row][col] != ' ') {
+                result += table[row][col];
+            }
         }
     }
     return result;
@@ -55,17 +58,16 @@ string RouteCipher::decrypt(const string& text) {
         }
     }
 
-    // Читаем слева направо, сверху вниз
+    // Читаем слева направо, сверху вниз (ТОЛЬКО ЗАНЯТЫЕ ЯЧЕЙКИ)
     string result;
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < key; col++) {
-            result += table[row][col];
+            // Добавляем только если ячейка не пустая (не пробел)
+            if (table[row][col] != ' ') {
+                result += table[row][col];
+            }
         }
     }
     
-    // Убираем лишние пробелы в конце
-    while (!result.empty() && result.back() == ' ') {
-        result.pop_back();
-    }
     return result;
 }
