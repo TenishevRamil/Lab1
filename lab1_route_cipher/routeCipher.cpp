@@ -1,6 +1,6 @@
 #include "routeCipher.h"
-#include <string>
 #include <vector>
+#include <string>
 #include <stdexcept>
 
 using namespace std;
@@ -19,7 +19,7 @@ string RouteCipher::encrypt(const string& text) {
 
     int rows = (text.length() + key - 1) / key;
     vector<vector<char>> table(rows, vector<char>(key, ' '));
-    
+
     // Заполняем таблицу слева направо, сверху вниз
     for (int i = 0; i < text.length(); i++) {
         int row = i / key;
@@ -27,12 +27,12 @@ string RouteCipher::encrypt(const string& text) {
         table[row][col] = text[i];
     }
 
-    // Читаем сверху вниз, справа налево (ТОЛЬКО ЗАНЯТЫЕ ЯЧЕЙКИ)
+    // Читаем по спирали: сверху вниз, справа налево
     string result;
     for (int col = key - 1; col >= 0; col--) {
         for (int row = 0; row < rows; row++) {
-            // Добавляем только если ячейка не пустая (не пробел)
-            if (table[row][col] != ' ') {
+            // Проверяем, что позиция была заполнена при записи
+            if (row * key + col < text.length()) {
                 result += table[row][col];
             }
         }
@@ -47,27 +47,29 @@ string RouteCipher::decrypt(const string& text) {
 
     int rows = (text.length() + key - 1) / key;
     vector<vector<char>> table(rows, vector<char>(key, ' '));
-    
-    // Заполняем таблицу сверху вниз, справа налево
+
+    // Заполняем таблицу по спирали: сверху вниз, справа налево
     int index = 0;
     for (int col = key - 1; col >= 0; col--) {
         for (int row = 0; row < rows; row++) {
-            if (index < text.length()) {
-                table[row][col] = text[index++];
+            // Заполняем только те ячейки, которые были заполнены при шифровании
+            if (row * key + col < text.length()) {
+                if (index < text.length()) {
+                    table[row][col] = text[index++];
+                }
             }
         }
     }
 
-    // Читаем слева направо, сверху вниз (ТОЛЬКО ЗАНЯТЫЕ ЯЧЕЙКИ)
+    // Читаем слева направо, сверху вниз
     string result;
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < key; col++) {
-            // Добавляем только если ячейка не пустая (не пробел)
-            if (table[row][col] != ' ') {
+            if (row * key + col < text.length()) {
                 result += table[row][col];
             }
         }
     }
-    
+
     return result;
 }
